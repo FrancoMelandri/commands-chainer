@@ -1,7 +1,14 @@
 public class CommandsChain {
+    CommandExecutor executor;
 
-    public String hello() {
-        return "hello";
+    public CommandsChain() {
     }
 
+    private CommandsChain(CommandExecutor executor) {
+        this.executor = executor;
+    }
+
+    public CommandsChain using(CommandExecutor executor) {
+        return new CommandsChain(executor);
+    }
 }

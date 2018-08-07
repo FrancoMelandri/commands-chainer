@@ -3,4 +3,8 @@ public class CommandExecutor {
                                  TypedProperty requestProperties) {
         return new TypedProperty();
     }
+
+    public TypedProperty executeCommand(String name) {
+        return new TypedProperty();
+    }
 }

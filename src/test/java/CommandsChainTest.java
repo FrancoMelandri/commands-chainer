@@ -5,9 +5,11 @@ import static org.junit.Assert.assertNotNull;
 public class CommandsChainTest {
 
     @Test
-    public void shouldBeTrue() {
-        CommandsChain result = new CommandsChain()
-                .using(new CommandExecutor());
+    public void shouldExecuteOneCommand() {
+        TypedProperty result = new CommandsChain()
+                .using(new CommandExecutor())
+                .command(ControllerCommand.class)
+                .execute();
         assertNotNull(result);
     }
 }

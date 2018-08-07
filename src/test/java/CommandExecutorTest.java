@@ -6,7 +6,7 @@ public class CommandExecutorTest {
 
     @Test
     public void shouldBeTrue() {
-        TypedProperty responseProps = new CommandExecutor().executeCommand("", null);
+        TypedProperty responseProps = new CommandExecutor().executeCommand("", new TypedProperty());
         assertNotNull(responseProps);
     }
 

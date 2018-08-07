@@ -25,10 +25,11 @@ public class CommandsChain {
                 new ArrayList<>(chain));
     }
 
-    public TypedProperty execute() {
+    public TypedProperty execute() throws Exception {
         TypedProperty respPropsGlobal = new TypedProperty();
         for (ChainItem ci : chain) {
-            respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName());
+            respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName(),
+                                                      new TypedProperty());
         }
         return respPropsGlobal;
 

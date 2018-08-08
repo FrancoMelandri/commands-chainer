@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandsChain implements ComandsChainContext,
+public class CommandsChain implements CommandsChainContext,
                                       CommandsChainActions,
                                       CommandsChainChildActions {
     private CommandExecutor executor;
@@ -11,7 +11,7 @@ public class CommandsChain implements ComandsChainContext,
         this.chain = new ArrayList<>();
     }
 
-    public static ComandsChainContext create() {
+    public static CommandsChainContext create() {
         return new CommandsChain();
     }
 

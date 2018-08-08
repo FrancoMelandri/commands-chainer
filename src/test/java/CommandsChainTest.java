@@ -94,7 +94,7 @@ public class CommandsChainTest {
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
                 Mockito.any(TypedProperty.class));
-        Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand3.class.getName()),
+        Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand2.class.getName()),
                 Mockito.any(TypedProperty.class));
     }
 

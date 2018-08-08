@@ -2,7 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandsChain implements ComandsChainContext,
-                                      CommandsChainActions {
+                                      CommandsChainActions,
+                                      CommandsChainChildActions {
     CommandExecutor executor;
     List<ChainItem> chain;
 
@@ -24,8 +25,17 @@ public class CommandsChain implements ComandsChainContext,
         return this;
     }
 
-    public CommandsChainActions on(CommandsChainGuard guardCallback) {
+    public CommandsChainChildActions childCommand(Class<? extends ControllerCommand> commandClass) {
+        this.chain.add(new ChainItem(commandClass));
+        return this;
+    }
+
+    public CommandsChainChildActions on(CommandsChainGuard guardCallback) {
         this.chain.get(this.chain.size() - 1).setGuardCallback(guardCallback);
+        return this;
+    }
+
+    public CommandsChainActions end() {
         return this;
     }
 

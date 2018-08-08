@@ -44,6 +44,7 @@ public class CommandsChainTest {
                 .using(executor)
                 .command(TestCommand1.class)
                 .on(guard)
+                .end()
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),

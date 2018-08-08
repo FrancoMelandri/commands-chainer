@@ -24,9 +24,15 @@ public class CommandsChain implements ComandsChainContext,
         return this;
     }
 
+    public CommandsChainActions on(CommandsChainGuard guardCallback) {
+        this.chain.get(this.chain.size() - 1).setGuardCallback(guardCallback);
+        return this;
+    }
+
     public TypedProperty execute() throws Exception {
         TypedProperty respPropsGlobal = new TypedProperty();
         for (ChainItem ci : chain) {
+            ci.getGuardCallback().guard(new TypedProperty(), new TypedProperty());
             respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName(),
                                                       new TypedProperty());
         }
@@ -35,14 +41,31 @@ public class CommandsChain implements ComandsChainContext,
     }
 
     private static class ChainItem {
+        static CommandsChainGuard EMPTY_CALLBACK = new CommandsChainGuard() {
+            @Override
+            public boolean guard(TypedProperty request, TypedProperty response) {
+                return false;
+            }
+        };
+
         private Class<? extends ControllerCommand> commandClass;
+        private CommandsChainGuard guardCallback;
 
         public ChainItem(Class<? extends ControllerCommand> commandClass) {
             this.commandClass = commandClass;
+            this.guardCallback = EMPTY_CALLBACK;
         }
 
         public Class<? extends ControllerCommand> getCommandClass() {
             return commandClass;
+        }
+
+        public CommandsChainGuard getGuardCallback() {
+            return guardCallback;
+        }
+
+        public void setGuardCallback(CommandsChainGuard guardCallback) {
+            this.guardCallback = guardCallback;
         }
     }
 }

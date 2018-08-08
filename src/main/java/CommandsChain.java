@@ -4,8 +4,8 @@ import java.util.List;
 public class CommandsChain implements ComandsChainContext,
                                       CommandsChainActions,
                                       CommandsChainChildActions {
-    CommandExecutor executor;
-    List<ChainItem> chain;
+    private CommandExecutor executor;
+    private List<ChainItem> chain;
 
     private CommandsChain() {
         this.chain = new ArrayList<>();
@@ -26,7 +26,7 @@ public class CommandsChain implements ComandsChainContext,
     }
 
     public CommandsChainChildActions childCommand(Class<? extends ControllerCommand> commandClass) {
-        this.chain.add(new ChainItem(commandClass));
+        this.chain.get(this.chain.size() - 1).getChain().add(new ChainItem(commandClass));
         return this;
     }
 
@@ -42,9 +42,14 @@ public class CommandsChain implements ComandsChainContext,
     public TypedProperty execute() throws Exception {
         TypedProperty respPropsGlobal = new TypedProperty();
         for (ChainItem ci : chain) {
-            ci.getGuardCallback().guard(new TypedProperty(), new TypedProperty());
             respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName(),
-                                                      new TypedProperty());
+                    new TypedProperty());
+            if (ci.getGuardCallback().guard(new TypedProperty(), new TypedProperty())) {
+                for (ChainItem child : ci.getChain()) {
+                    respPropsGlobal = executor.executeCommand(child.getCommandClass().getName(),
+                            new TypedProperty());
+                }
+            }
         }
         return respPropsGlobal;
 
@@ -60,10 +65,12 @@ public class CommandsChain implements ComandsChainContext,
 
         private Class<? extends ControllerCommand> commandClass;
         private CommandsChainGuard guardCallback;
+        private List<ChainItem> chain;
 
         public ChainItem(Class<? extends ControllerCommand> commandClass) {
             this.commandClass = commandClass;
             this.guardCallback = EMPTY_CALLBACK;
+            this.chain = new ArrayList<>();
         }
 
         public Class<? extends ControllerCommand> getCommandClass() {
@@ -76,6 +83,10 @@ public class CommandsChain implements ComandsChainContext,
 
         public void setGuardCallback(CommandsChainGuard guardCallback) {
             this.guardCallback = guardCallback;
+        }
+
+        public List<ChainItem> getChain() {
+            return chain;
         }
     }
 }

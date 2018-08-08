@@ -1,28 +1,27 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandsChain {
+public class CommandsChain implements ComandsChainContext,
+                                      CommandsChainActions {
     CommandExecutor executor;
     List<ChainItem> chain;
 
-    public CommandsChain() {
+    private CommandsChain() {
         this.chain = new ArrayList<>();
     }
 
-    private CommandsChain(CommandExecutor executor, List<ChainItem> chain) {
+    public static ComandsChainContext create() {
+        return new CommandsChain();
+    }
+
+    public CommandsChainActions using(CommandExecutor executor) {
         this.executor = executor;
-        this.chain = chain;
+        return this;
     }
 
-    public CommandsChain using(CommandExecutor executor) {
-        return new CommandsChain(executor,
-                                 new ArrayList<>(chain));
-    }
-
-    public CommandsChain command(Class<? extends ControllerCommand> commandClass) {
+    public CommandsChainActions command(Class<? extends ControllerCommand> commandClass) {
         this.chain.add(new ChainItem(commandClass));
-        return new CommandsChain(executor,
-                new ArrayList<>(chain));
+        return this;
     }
 
     public TypedProperty execute() throws Exception {

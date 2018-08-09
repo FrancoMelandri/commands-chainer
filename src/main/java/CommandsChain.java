@@ -1,14 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class CommandsChain implements CommandsChainContext,
                                       CommandsChainActions,
                                       CommandsChainChildActions {
     private CommandExecutor executor;
-    private List<ChainItem> chain;
+    private List<ChainItem> rootChain;
+    private Stack<ChainItem> itemsStack;
 
     private CommandsChain() {
-        this.chain = new ArrayList<>();
+        this.rootChain = new ArrayList<>();
+        this.itemsStack = new Stack<>();
     }
 
     public static CommandsChainContext create() {
@@ -21,41 +24,61 @@ public class CommandsChain implements CommandsChainContext,
     }
 
     public CommandsChainActions command(Class<? extends ControllerCommand> commandClass) {
-        this.chain.add(new ChainItem(commandClass));
-        return this;
-    }
-
-    public CommandsChainChildActions childCommand(Class<? extends ControllerCommand> commandClass) {
-        this.chain.get(this.chain.size() - 1).getChain().add(new ChainItem(commandClass));
+        this.rootChain.add(new ChainItem(commandClass));
         return this;
     }
 
     public CommandsChainChildActions on(CommandsChainGuard guardCallback) {
-        this.chain.get(this.chain.size() - 1).setGuardCallback(guardCallback);
+        ChainItem item = this.rootChain.get(this.rootChain.size() - 1);
+        this.itemsStack.push(item);
+        item.setGuardCallback(guardCallback);
+        return this;
+    }
+
+    public CommandsChainChildActions childCommand(Class<? extends ControllerCommand> commandClass) {
+        List<ChainItem> currentItem =  this.itemsStack.peek().getChain();
+        currentItem.add(new ChainItem(commandClass));
+        return this;
+    }
+
+    public CommandsChainChildActions onChild(CommandsChainGuard guardCallback) {
+        ChainItem parentItem =  this.itemsStack.peek();
+        ChainItem item = parentItem.getChain().get(this.rootChain.size() - 1);
+        this.itemsStack.push(item);
+        item.setGuardCallback(guardCallback);
         return this;
     }
 
     public CommandsChainActions end() {
+        this.itemsStack.pop();
         return this;
+    }
+
+    public CommandsChainChildActions endChild() {
+        this.itemsStack.pop();
+        return this;
+    }
+
+    private void internalExecute(List<ChainItem> commands,
+                                 TypedProperty respPropsGlobal)  throws Exception{
+
+        for (ChainItem ci : commands) {
+            respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName(),
+                    new TypedProperty());
+            if (ci.getGuardCallback().guard(new TypedProperty(), new TypedProperty())) {
+                internalExecute(ci.getChain(), respPropsGlobal);
+            }
+        }
     }
 
     public TypedProperty execute() throws Exception {
         TypedProperty respPropsGlobal = new TypedProperty();
-        for (ChainItem ci : chain) {
-            respPropsGlobal = executor.executeCommand(ci.getCommandClass().getName(),
-                    new TypedProperty());
-            if (ci.getGuardCallback().guard(new TypedProperty(), new TypedProperty())) {
-                for (ChainItem child : ci.getChain()) {
-                    respPropsGlobal = executor.executeCommand(child.getCommandClass().getName(),
-                            new TypedProperty());
-                }
-            }
-        }
+        internalExecute(rootChain, respPropsGlobal);
         return respPropsGlobal;
-
     }
 
     private static class ChainItem {
+
         static CommandsChainGuard EMPTY_CALLBACK = new CommandsChainGuard() {
             @Override
             public boolean guard(TypedProperty request, TypedProperty response) {

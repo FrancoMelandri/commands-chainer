@@ -10,7 +10,7 @@ public class CommandsChainTest {
         CommandsChain
                 .create()
                 .using(executor)
-                .command(TestCommand1.class)
+                    .command(TestCommand1.class)
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
@@ -24,8 +24,8 @@ public class CommandsChainTest {
         CommandsChain
                 .create()
                 .using(executor)
-                .command(TestCommand1.class)
-                .command(TestCommand2.class)
+                    .command(TestCommand1.class)
+                    .command(TestCommand2.class)
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
@@ -42,9 +42,9 @@ public class CommandsChainTest {
         CommandsChain
                 .create()
                 .using(executor)
-                .command(TestCommand1.class)
-                .on(guard)
-                .end()
+                    .command(TestCommand1.class)
+                    .on(guard)
+                    .end()
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
@@ -63,10 +63,10 @@ public class CommandsChainTest {
         CommandsChain
                 .create()
                 .using(executor)
-                .command(TestCommand1.class)
-                .on(guard)
-                    .childCommand(TestCommand2.class)
-                .end()
+                    .command(TestCommand1.class)
+                    .on(guard)
+                        .childCommand(TestCommand2.class)
+                    .end()
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
@@ -197,13 +197,13 @@ public class CommandsChainTest {
         CommandsChain
                 .create()
                 .using(executor)
-                .command(TestCommand1.class)
-                .on(guard)
-                    .childCommand(TestCommand2.class)
-                    .onChild(guardInvalid)
-                        .childCommand(TestCommand3.class)
-                    .endChild()
-                .end()
+                    .command(TestCommand1.class)
+                    .on(guard)
+                        .childCommand(TestCommand2.class)
+                        .onChild(guardInvalid)
+                            .childCommand(TestCommand3.class)
+                        .endChild()
+                    .end()
                 .execute();
 
         Mockito.verify(executor).executeCommand(Mockito.eq(TestCommand1.class.getName()),
@@ -329,8 +329,5 @@ public class CommandsChainTest {
     }
 
     public static class TestCommand4 extends ControllerCommand {
-    }
-
-    public static class TestCommand5 extends ControllerCommand {
     }
 }

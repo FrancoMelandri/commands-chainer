@@ -12,9 +12,11 @@
         CommandsChain
                 .create()
                 .using(executor)
+                .flow()
                     .command(TestCommand1.class)
                     .command(TestCommand2.class)
-                .execute();
+                .then()
+                    .execute();
 
 ```
 
@@ -23,12 +25,14 @@
         CommandsChain
                 .create()
                 .using(executor)
+                .flow()
                     .command(TestCommand1.class)
                     .on(guard)
-                       .cildCommand(TestCommand2.class)
-                    .endOn()
+                        .command(TestCommand2.class)
+                    .end()
                     .command(TestCommand3.class)
-                .execute();
+                .then()
+                    .execute();
 
 ```
 the TestCommand2 will be executed only if guard callback return true.
@@ -39,15 +43,17 @@ the TestCommand2 will be executed only if guard callback return true.
         CommandsChain
                 .create()
                 .using(executor)
+                .flow()
                     .command(TestCommand1.class)
                     .on(guard)
-                       .cildCommand(TestCommand2.class)
-                       .onChild(childGuard)
-                           .cildCommand(TestCommand3.class)
-                       .endChild()
-                    .endOn()
+                       .command(TestCommand2.class)
+                       .on(childGuard)
+                           .command(TestCommand3.class)
+                       .end()
+                    .end()
                     .command(TestCommand4.class)
-                .execute();
+                .then()
+                    .execute();
 ```
 
 the TestCommand3 will be executed only if guard and childGuard callbacks returns true.

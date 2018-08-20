@@ -123,15 +123,6 @@ public class CommandsChain implements ICommandsChainContext,
         }
 
         @Override
-        public ICommandsChainChildCommandsOn on(CommandsChainGuard guardCallback) {
-//            ChainItem item = this.chain.get(this.chain.size() - 1);
-//            item.setGuardCallback(guardCallback);
-//            return new CommandsChainChildCommandsOn(this,
-//                                                    item.getChain());
-            return null;
-        }
-
-        @Override
         public ICommandsChainCommandsOn end() {
             return this.parent;
         }
